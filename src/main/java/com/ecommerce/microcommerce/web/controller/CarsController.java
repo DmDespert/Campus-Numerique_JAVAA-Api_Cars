@@ -1,72 +1,71 @@
 package com.ecommerce.microcommerce.web.controller;
 
-import com.ecommerce.microcommerce.dao.CarsDao;
 import com.ecommerce.microcommerce.cars.Cars;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.List;
 
 @RestController
-@EnableSwagger2
 public class CarsController {
 
-    @Autowired //Indique à Spring de fabriquer une Instance
-    private CarsDao carsDao;
+    private RestTemplate restTemplate = new RestTemplate();
 
     /**
-     * Get all Cars
+     * Get all Cars Models
      * GET METHOD
      * @return
      */
     @RequestMapping(value = "/Cars", method = RequestMethod.GET)
-    public List<Cars> listCars() {
-        return carsDao.findAll();
+    public Object showAll() {
+        return this.restTemplate.getForObject("http://localhost:8081/Models", Object.class);
     }
 
     /**
-     * Get Car by Id
-     * GET METHOD
+     * Get single Car Model
      * @param id
      * @return
      */
-    @GetMapping(value = "/Cars/{id}")
-    public Cars showCars(@PathVariable int id) {
-        return carsDao.findById(id);
+    @RequestMapping(value = "/Cars/{id}", method = RequestMethod.GET)
+    public Object showById(@PathVariable int id) {
+        return this.restTemplate.getForObject("http://localhost:8081/Models/"+id, Object.class);
     }
 
     /**
-     * Add Car
-     * POST METHOD
-     * @param cars
+     * Add new Car Model
+     * @param object
      * @return
      */
-    @PostMapping(value = "/Cars")
-    public Cars addModel(@RequestBody Cars cars) {
-        return carsDao.save(cars);
+    @RequestMapping(value = "/Cars", method = RequestMethod.POST)
+    public Object addNew(@RequestBody Object object) {
+        return this.restTemplate.postForObject("http://localhost:8081/Models", object, Object.class);
     }
 
     /**
-     * Edit Car
-     * PUT METHOD
-     * @param cars
+     * Edit Car Model
+     * @param object
      * @param id
      * @return
      */
-    @PutMapping(value = "/Cars/{id}")
-    public Cars editModel(@RequestBody Cars cars, @PathVariable int id) {
-        return carsDao.update(cars, id);
+    @RequestMapping(value = "/Cars/{id}", method = RequestMethod.PUT)
+    public Object modifyCar(@RequestBody Object object, @PathVariable int id) {
+        this.restTemplate.put("http://localhost:8081/Models/"+id, object);
+        return this.showById(id);
     }
 
     /**
-     * Delete Car
-     * DELETE METHOD
+     * Delete Car Model
      * @param id
      * @return
      */
-    @DeleteMapping(value = "/Cars/{id}")
-    public Boolean deleteModel(@PathVariable int id) {
-        return carsDao.delete(id);
+    @RequestMapping(value = "/Cars/{id}", method = RequestMethod.DELETE)
+    public Object delete(@PathVariable int id) {
+        this.restTemplate.delete("http://localhost:8081/Models/"+id, Object.class);
+        return this.showById(id);
     }
 }
