@@ -1,18 +1,14 @@
 package com.ecommerce.microcommerce.web.controller;
 
-import com.ecommerce.microcommerce.cars.Cars;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.List;
 
 @RestController
 public class CarsController {
+
+    @Value("${service.url}")
+    private String url;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -23,7 +19,7 @@ public class CarsController {
      */
     @RequestMapping(value = "/Cars", method = RequestMethod.GET)
     public Object showAll() {
-        return this.restTemplate.getForObject("http://localhost:8081/Models", Object.class);
+        return this.restTemplate.getForObject(url+"/Models", Object.class);
     }
 
     /**
@@ -33,7 +29,7 @@ public class CarsController {
      */
     @RequestMapping(value = "/Cars/{id}", method = RequestMethod.GET)
     public Object showById(@PathVariable int id) {
-        return this.restTemplate.getForObject("http://localhost:8081/Models/"+id, Object.class);
+        return this.restTemplate.getForObject(url+"/Models/"+id, Object.class);
     }
 
     /**
@@ -43,7 +39,7 @@ public class CarsController {
      */
     @RequestMapping(value = "/Cars", method = RequestMethod.POST)
     public Object addNew(@RequestBody Object object) {
-        return this.restTemplate.postForObject("http://localhost:8081/Models", object, Object.class);
+        return this.restTemplate.postForObject( url+"/Models", object, Object.class);
     }
 
     /**
@@ -54,7 +50,7 @@ public class CarsController {
      */
     @RequestMapping(value = "/Cars/{id}", method = RequestMethod.PUT)
     public Object modifyCar(@RequestBody Object object, @PathVariable int id) {
-        this.restTemplate.put("http://localhost:8081/Models/"+id, object);
+        this.restTemplate.put(url+"/Models/"+id, object);
         return this.showById(id);
     }
 
@@ -65,7 +61,7 @@ public class CarsController {
      */
     @RequestMapping(value = "/Cars/{id}", method = RequestMethod.DELETE)
     public Object delete(@PathVariable int id) {
-        this.restTemplate.delete("http://localhost:8081/Models/"+id, Object.class);
+        this.restTemplate.delete(url+"/Models/"+id, Object.class);
         return this.showById(id);
     }
 }
